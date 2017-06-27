@@ -162,4 +162,4 @@ class AlexaCardTestCase(unittest.TestCase):
         for bad_url in self.bad_urls:
             with self.subTest(url=bad_url):
                 with self.assertRaises(ValueError):
-                    alexa.card.check_image_url(bad_url)
+                    alexa.card._check_image_url(bad_url)
