@@ -2,8 +2,9 @@
 
 class Session:
 
-    def __init__(self, session_id: str, application_id: str, new: bool=True,
-                 attributes: dict=None):
+    def __init__(
+            self, session_id: str, application_id: str, new: bool=True,
+            attributes: dict=None):
 
         self.session_id = session_id
         self.application_id = application_id

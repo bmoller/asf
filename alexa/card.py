@@ -19,22 +19,25 @@ def build_card(
 
     :return: Properly structured card object for an Alexa response
 
-    :raises: TypeError, ValueError
+    :raises: ValueError
     """
 
-    if type(text) != str:
-        raise TypeError('Card text must be passed as a string; received {type}'.format(type=type(text)))
-    if type(title) != str and title is not None:
-        raise TypeError('Card title must be passed as a string; received {type}'.format(type=type(title)))
-    if type(small_image) != str and small_image is not None:
-        raise TypeError('Small image URL must be passed as a string; received {type}'.format(type=type(small_image)))
-    if type(large_image) != str and large_image is not None:
-        raise TypeError('Large image URL must be passed as a string; received {type}'.format(type=type(large_image)))
+    text_is_not_str = not type(text) == str
+    title_is_not_str = (
+        not type(title) == str and title is not None)
+    small_image_is_not_str = (
+        not type(small_image) == str and small_image is not None)
+    large_image_is_not_str = (
+        not type(large_image) == str and large_image is not None)
+    if (text_is_not_str or title_is_not_str or small_image_is_not_str
+            or large_image_is_not_str):
+        raise TypeError('Cards can only be built from strings')
 
     if small_image or large_image:
         card = {
             'type': 'Standard',
             'text': text,
+            'image': {},
         }
     else:
         card = {
@@ -50,19 +53,16 @@ def build_card(
             _check_image_url(small_image)
         except ValueError:
             raise
-
-        card['image'] = {}
-        card['image']['smallImageUrl'] = small_image
+        else:
+            card['image']['smallImageUrl'] = small_image
 
     if large_image:
         try:
             _check_image_url(large_image)
         except ValueError:
             raise
-
-        if 'image' not in card:
-            card['image'] = {}
-        card['image']['largeImageUrl'] = large_image
+        else:
+            card['image']['largeImageUrl'] = large_image
 
     return card
 

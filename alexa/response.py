@@ -2,11 +2,10 @@ PLAIN_TEXT = 'PlainText'
 SSML = 'SSML'
 
 
-def build_response(response_type: str, response_text: str,
-                   session_attributes: dict=None,
-                   should_end_session: bool=True) -> dict:
-    """ Given the various pieces of information to return, build a dictionary
-    according to the Alexa Skills Kit syntax for service responses.
+def build_response(
+        response_type: str, response_text: str, session_attributes: dict=None,
+        should_end_session: bool=True) -> dict:
+    """ Builds a dict structure that can be returned as an Alexa skill response
 
     :param response_type: Using the module attributes, specify whether the
                           response is plain text to be read or speech markup
@@ -16,7 +15,7 @@ def build_response(response_type: str, response_text: str,
     :param should_end_session: Determines if Alexa should listen for a response
                                or the conversation is over
 
-    :return:
+    :return: An Alexa skill response
     """
 
     response = {
