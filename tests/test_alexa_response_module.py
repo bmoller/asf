@@ -101,8 +101,7 @@ class AlexaCardTestCase(unittest.TestCase):
                         msg='New Card has an incorrect large_image URL')
 
     def test_nonstring_parameters_raise_an_exception_at_card_creation(self):
-        """ Check that nonstring parameters to card creation raise exceptions
-        """
+        """Check that nonstring parameters to card creation raise exceptions"""
 
         for test_case, test_input in self.type_check_test_cases.items():
 
@@ -148,7 +147,7 @@ class AlexaCardTestCase(unittest.TestCase):
                     alexa.response.Card(self.card_text, large_image=test_input)
 
     def test_check_image_url_method(self):
-        """ Check image URL verification raises exceptions when appropriate"""
+        """Check image URL verification raises exceptions when appropriate"""
 
         for test_case, test_input in self.check_image_url_test_cases.items():
             with self.subTest(test_case=test_case):
