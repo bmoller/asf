@@ -1,7 +1,16 @@
 import unittest
-import uuid
 
 import alexa.session
+
+from . import (
+    generate_access_token, generate_application_id, generate_consent_token,
+    generate_session_id, generate_user_id)
+
+ACCESS_TOKEN = generate_access_token()
+APPLICATION_ID = generate_application_id()
+CONSENT_TOKEN = generate_consent_token()
+SESSION_ID = generate_session_id()
+USER_ID = generate_user_id()
 
 
 class AlexaSessionTestCase(unittest.TestCase):
@@ -9,13 +18,27 @@ class AlexaSessionTestCase(unittest.TestCase):
     def setUp(self):
         """Set some attributes used across multiple tests"""
 
-        self.application_id = '.'.join(['amzn1.ask.skill', str(uuid.uuid4())])
-        self.session_id = '.'.join(['amzn1.echo-api.session', str(uuid.uuid4())])
+        self.application_id = APPLICATION_ID
+        self.session_id = SESSION_ID
+        self.user_id = USER_ID
 
         self.session_attributes = {
             'attribute1': 'value1',
             'attribute2': 'value2',
             'attribute3': 'value3',
+        }
+
+        self.test_inputs = {
+            'Simple New Session': {
+                'application': {
+                    'applicationId': self.application_id,
+                },
+                'new': True,
+                'sessionId': self.session_id,
+                'user': {
+                    'userId': self.user_id,
+                }
+            }
         }
 
     def tearDown(self):
@@ -28,56 +51,126 @@ class AlexaSessionTestCase(unittest.TestCase):
     def test_session_creation(self):
         """Test creation of a session object with various parameters"""
 
-        test_session = alexa.session.Session(
-            self.session_id, self.application_id)
+        for test_case, test_input in self.test_inputs.items():
 
-        with self.subTest(attribute='session_id'):
-            self.assertEqual(test_session.session_id, self.session_id)
-        with self.subTest(attribute='application_id'):
-            self.assertEqual(test_session.application_id, self.application_id)
-        with self.subTest(attribute='new'):
-            self.assertTrue(test_session.new)
+            test_session = alexa.session.Session(test_input)
 
-        test_session = alexa.session.Session(
-            self.session_id, self.application_id, new=False)
+            with self.subTest(test_case=test_case):
+                self.assertEqual(
+                    test_session.application.application_id,
+                    test_input['application']['applicationId'],
+                    msg='Application in new Session has an incorrect application_id')
 
-        with self.subTest(attribute='session_id'):
-            self.assertEqual(test_session.session_id, self.session_id)
-        with self.subTest(attribute='application_id'):
-            self.assertEqual(test_session.application_id, self.application_id)
-        with self.subTest(attribute='new'):
-            self.assertFalse(test_session.new)
+            with self.subTest(test_case=test_case):
+                self.assertEqual(
+                    test_session.new, test_input['new'],
+                    msg='New Session has an incorrect \'new\' attribute')
 
-        test_session = alexa.session.Session(
-            self.session_id, self.application_id,
-            attributes=self.session_attributes)
+            with self.subTest(test_case=test_case):
+                self.assertEqual(
+                    test_session.session_id, test_input['sessionId'],
+                    msg='New Session has an incorrect session_id')
 
-        with self.subTest(attribute='session_id'):
-            self.assertEqual(test_session.session_id, self.session_id)
-        with self.subTest(attribute='application_id'):
-            self.assertEqual(test_session.application_id, self.application_id)
-        with self.subTest(attribute='new'):
-            self.assertTrue(test_session.new)
+            with self.subTest(test_case=test_case):
+                self.assertEqual(
+                    test_session.user.user_id, test_input['user']['userId'],
+                    msg='User in new Session has an incorrect user_id')
 
-        for attribute, value in self.session_attributes.items():
-            with self.subTest(has_attribute=attribute):
-                self.assertTrue(hasattr(test_session, attribute))
-            with self.subTest(attribute=attribute):
-                self.assertEqual(getattr(test_session, attribute), value)
 
-        test_session = alexa.session.Session(
-            self.session_id, self.application_id, new=False,
-            attributes=self.session_attributes)
+class AlexaApplicationTestCase(unittest.TestCase):
 
-        with self.subTest(attribute='session_id'):
-            self.assertEqual(test_session.session_id, self.session_id)
-        with self.subTest(attribute='application_id'):
-            self.assertEqual(test_session.application_id, self.application_id)
-        with self.subTest(attribute='new'):
-            self.assertFalse(test_session.new)
+    def setUp(self):
+        """Set some class attributes used across multiple tests"""
 
-        for attribute, value in self.session_attributes.items():
-            with self.subTest(has_attribute=attribute):
-                self.assertTrue(hasattr(test_session, attribute))
-            with self.subTest(attribute=attribute):
-                self.assertEqual(getattr(test_session, attribute), value)
+        self.application_id = APPLICATION_ID
+
+    def tearDown(self):
+        """Remove class attributes created at setup"""
+
+        for attribute in ['application_id', ]:
+            delattr(self, attribute)
+
+    def test_application_creation(self):
+        """Check creation of new Application objects"""
+
+        test_application = alexa.session.Application(self.application_id)
+        self.assertEqual(
+            test_application.application_id, self.application_id,
+            msg='New Application has an incorrect application_id')
+
+
+class AlexaUserTestCase(unittest.TestCase):
+
+    def setUp(self):
+        """Set some class attributes used across multiple tests"""
+
+        self.user_id = USER_ID
+        self.consent_token = CONSENT_TOKEN
+        self.access_token = ACCESS_TOKEN
+
+        self.test_inputs = {
+            'User ID Only': {
+                'user_id': self.user_id,
+                'consent_token': None,
+                'access_token': None,
+            },
+            'User ID and Consent Token': {
+                'user_id': self.user_id,
+                'consent_token': self.consent_token,
+                'access_token': None,
+            },
+            'User ID and Access Token': {
+                'user_id': self.user_id,
+                'consent_token': None,
+                'access_token': self.access_token,
+            },
+            'User ID, Consent Token, and Access Token': {
+                'user_id': self.user_id,
+                'consent_token': self.consent_token,
+                'access_token': self.access_token,
+            },
+        }
+
+    def tearDown(self):
+        """Remove class attributes created at setup"""
+
+        for attribute in ['user_id', 'consent_token', 'access_token', ]:
+            delattr(self, attribute)
+
+    def test_user_creation(self):
+        """Check creation of new User objects"""
+
+        for test_case, test_input in self.test_inputs.items():
+
+            test_user = alexa.session.User(
+                test_input['user_id'],
+                consent_token=test_input['consent_token'],
+                access_token=test_input['access_token']
+            )
+
+            with self.subTest(test_case=test_case):
+                self.assertEqual(
+                    test_user.user_id, self.user_id,
+                    msg='New User has an incorrect user_id')
+
+            if test_input['consent_token']:
+                with self.subTest(test_case=test_case):
+                    self.assertEqual(
+                        test_user.consent_token, self.consent_token,
+                        msg='New User has an incorrect consent_token')
+            else:
+                with self.subTest(test_case=test_case):
+                    self.assertFalse(
+                        hasattr(test_user, 'consent_token'),
+                        msg='New User has a consent_token when none was provided')
+
+            if test_input['access_token']:
+                with self.subTest(test_case=test_case):
+                    self.assertEqual(
+                        test_user.access_token, self.access_token,
+                        msg='New User has an incorrect access_token')
+            else:
+                with self.subTest(test_case=test_case):
+                    self.assertFalse(
+                        hasattr(test_user, 'access_token'),
+                        msg='New User has a access_token when none was provided')

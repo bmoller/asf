@@ -1,84 +1,108 @@
 import unittest
-import uuid
 
 import alexa.context
 
-ACCESS_TOKEN = 'laksfdqiohjweipobqvcljakhnfioquwefoiu'
-APPLICATION_ID = '.'.join(['amzn1.ask.skill', str(uuid.uuid4())])
-CONSENT_TOKEN = 'Atza|MQEWY...6fnLok'
-USER_ID = 'amzn1.ask.account.HCECOV3JK4DJHF84VI7H0EFN6WFH6OSI29HB65JCJAQAXPAPWS4NAV1VR6QSP65SY0523OVNOKBMY4LM8LNW40JH4MD2LVL1XXA67FOKYJZVFEE9DW6XTX2RB6SS4KOB2080ES12T7PC0TWY5QLH935XWA1N6UM48HUOW4OS9MXU81R9M8AZS3OVV3XZGYXYTT1DP4HZQ3EGDL1'
+from . import (
+    generate_access_token, generate_application_id, generate_consent_token,
+    generate_device_id, generate_user_id)
 
-
-class AlexaApplicationTestCase(unittest.TestCase):
-
-    def setUp(self):
-        """Set some class attributes used across multiple tests"""
-
-        self.application_id = APPLICATION_ID
-
-    def tearDown(self):
-        """Remove class attributes created at setup"""
-
-        for attribute in ['application_id', ]:
-            delattr(self, attribute)
-
-    def test_application_creation(self):
-        
-
-
-class AlexaUserTestCase(unittest.TestCase):
-
-    def setUp(self):
-        """Set some class attributes used across multiple tests"""
-
-        self.user_id = USER_ID
-        self.consent_token = CONSENT_TOKEN
-        self.access_token = ACCESS_TOKEN
-
-    def tearDown(self):
-        """Remove class attributes created at setup"""
-
-        for attribute in ['user_id', 'consent_token', 'access_token', ]:
-            delattr(self, attribute)
-
-    def test_user_creation(self):
-        """Check that a new User returns the attributes it was created with"""
-
-        test_user = alexa.context.User(
-            self.user_id, consent_token=self.consent_token,
-            access_token=self.access_token)
-
-        with self.subTest(attribute='User.id'):
-            self.assertEqual(test_user.user_id, self.user_id)
-        with self.subTest(attribute='User.consent_token'):
-            self.assertEqual(test_user.consent_token, self.consent_token)
+ACCESS_TOKEN = generate_access_token()
+APPLICATION_ID = generate_application_id()
+CONSENT_TOKEN = generate_consent_token()
+DEVICE_ID = generate_device_id()
+USER_ID = generate_user_id()
 
 
 class AlexaContextTestCase(unittest.TestCase):
 
     def setUp(self):
+        """Set some class attributes used across multiple tests"""
 
         self.application_id = APPLICATION_ID
+        self.device_id = DEVICE_ID
+        self.user_id = USER_ID
 
         self.test_context_data = {
-            'context': {
-                'AudioPlayer': {
-                    'playerActivity': 'IDLE'
+            'AudioPlayer': {
+                'playerActivity': 'IDLE'
+            },
+            'System': {
+                'apiEndpoint': 'https://api.amazonalexa.com',
+                'application': {
+                    'applicationId': self.application_id,
                 },
-                'System': {
-                    'apiEndpoint': 'https://api.amazonalexa.com',
-                    'application': {
-                        'applicationId': self.application_id,
+                'device': {
+                    'deviceId': self.device_id,
+                    'supportedInterfaces': {
+                        'AudioPlayer': {}
                     },
-                    'device': {
-                        'deviceId': 'amzn1.ask.device.AHGKIGP465ETRXX2V6J3W7LI7P2AUJWDHJZ3Z44JANKODIG2TJKCRDQNPZKKU5JTGDWZJHXP3V2K3UCSWUUGAPU7NTFS6DBJKTNGD67DWM3LCHOTDE35PRXZCHQWVHHTDRGNE7UYMAYMZREKUGQSQM7KUWFA',
-                        'supportedInterfaces': {
-                            'AudioPlayer': {}
-                        },
-                    },
-                    'user': {
-                        'userId': self.user_id
-                    },
+                },
+                'user': {
+                    'userId': self.user_id
                 },
             },
         }
+
+    def tearDown(self):
+        """Remove class attributes created at setup"""
+
+        for attribute in [
+                'application_id', 'device_id', 'user_id', 'test_context_data']:
+            delattr(self, attribute)
+
+    def test_context_creation(self):
+
+        test_context = alexa.context.Context(self.test_context_data)
+        with self.subTest():
+            self.assertEqual(
+                test_context.device.device_id, self.device_id,
+                msg='Device in new Context has an incorrect device_id')
+        with self.subTest():
+            self.assertTrue(
+                test_context.device.supports_streaming,
+                msg='Device in new Context reports incorrect streaming support')
+
+
+class AlexaDeviceTestCase(unittest.TestCase):
+
+    def setUp(self):
+        """Set some class attributes used across multiple tests"""
+
+        self.device_id = DEVICE_ID
+
+        self.test_inputs = {
+            'No Streaming Support': {
+                'device_id': self.device_id,
+                'supports_streaming': False,
+            },
+            'Has Streaming Support': {
+                'device_id': self.device_id,
+                'supports_streaming': True,
+            }
+        }
+
+    def tearDown(self):
+        """Remove class attributes created at setup"""
+
+        for attribute in ['device_id', ]:
+            delattr(self, attribute)
+
+    def test_device_creation(self):
+        """Test creation of new Device objects"""
+
+        for test_case, test_input in self.test_inputs.items():
+
+            test_device = alexa.context.Device(
+                test_input['device_id'],
+                supports_streaming=test_input['supports_streaming'])
+
+            with self.subTest(test_case=test_case):
+                self.assertEqual(
+                    test_device.device_id, test_input['device_id'],
+                    msg='New Device has an incorrect device_id')
+
+            with self.subTest(test_case=test_case):
+                self.assertEqual(
+                    test_device.supports_streaming,
+                    test_input['supports_streaming'],
+                    msg='New Device reports incorrect streaming support')
