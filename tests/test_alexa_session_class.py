@@ -28,7 +28,7 @@ class AlexaSessionTestCase(unittest.TestCase):
             'attribute3': 'value3',
         }
 
-        self.test_inputs = {
+        self.session_creation_test_cases = {
             'Simple New Session': {
                 'application': {
                     'applicationId': self.application_id,
@@ -45,14 +45,14 @@ class AlexaSessionTestCase(unittest.TestCase):
         """Remove attributes added at setup"""
 
         for attribute in [
-                'application_id', 'session_id', 'session_attributes', ]:
+                'application_id', 'session_id', 'session_attributes',
+                'session_creation_test_cases', ]:
             delattr(self, attribute)
 
     def test_session_creation(self):
         """Test creation of a session object with various parameters"""
 
-        for test_case, test_input in self.test_inputs.items():
-
+        for test_case, test_input in self.session_creation_test_cases.items():
             test_session = alexa.session.Session(test_input)
 
             with self.subTest(test_case=test_case):
@@ -108,7 +108,7 @@ class AlexaUserTestCase(unittest.TestCase):
         self.consent_token = CONSENT_TOKEN
         self.access_token = ACCESS_TOKEN
 
-        self.test_inputs = {
+        self.user_creation_test_cases = {
             'User ID Only': {
                 'user_id': self.user_id,
                 'consent_token': None,
@@ -140,8 +140,7 @@ class AlexaUserTestCase(unittest.TestCase):
     def test_user_creation(self):
         """Check creation of new User objects"""
 
-        for test_case, test_input in self.test_inputs.items():
-
+        for test_case, test_input in self.user_creation_test_cases.items():
             test_user = alexa.session.User(
                 test_input['user_id'],
                 consent_token=test_input['consent_token'],

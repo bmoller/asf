@@ -19,7 +19,7 @@ class AlexaCardTestCase(unittest.TestCase):
             'dict Input': {},
         }
 
-        self.url_check_test_cases = {
+        self.check_image_url_test_cases = {
             'HTTP Scheme': 'http://this.isnt/a/ssl/url',
             'Invalid Image Type': 'https://this.image/isnt/a/valid/type.gif',
             'Invalid netloc': 'https://this/is/a/bad/netloc',
@@ -62,8 +62,8 @@ class AlexaCardTestCase(unittest.TestCase):
         """Remove the attributes created in test setup"""
 
         for attribute in [
-                'card_text', 'card_title', 'image_url', 'url_check_test_cases',
-                'type_check_test_cases', 'card_creation_test_cases', ]:
+                'card_text', 'card_title', 'image_url', 'type_check_test_cases',
+                'check_image_url_test_cases', 'card_creation_test_cases', ]:
             delattr(self, attribute)
 
     def test_card_creation(self):
@@ -99,7 +99,7 @@ class AlexaCardTestCase(unittest.TestCase):
                         test_input['kwargs']['large_image'],
                         msg='New Card has an incorrect large_image URL')
 
-    def test_nonstring_parameters_raise_exceptions(self):
+    def test_nonstring_parameters_raise_an_exception_at_card_creation(self):
         """ Check that nonstring parameters to card creation raise exceptions
         """
 
@@ -132,7 +132,7 @@ class AlexaCardTestCase(unittest.TestCase):
     def test_bad_image_urls_raise_an_exception_at_card_creation(self):
         """Check that various URL's of invalid format raise exceptions"""
 
-        for test_case, test_input in self.url_check_test_cases.items():
+        for test_case, test_input in self.check_image_url_test_cases.items():
 
             with self.subTest(small_image=test_case):
                 with self.assertRaises(
@@ -149,7 +149,7 @@ class AlexaCardTestCase(unittest.TestCase):
     def test_check_image_url_method(self):
         """ Check image URL verification raises exceptions when appropriate"""
 
-        for test_case, test_input in self.url_check_test_cases.items():
+        for test_case, test_input in self.check_image_url_test_cases.items():
             with self.subTest(test_case=test_case):
                 with self.assertRaises(
                         ValueError,
