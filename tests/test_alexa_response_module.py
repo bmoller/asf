@@ -1,3 +1,4 @@
+import json
 import unittest
 
 import alexa.response
@@ -155,3 +156,17 @@ class AlexaCardTestCase(unittest.TestCase):
                         ValueError,
                         msg='No exception was raised for a nonstring image URL'):
                     alexa.response.Card._check_image_url(test_input)
+
+    def test_card_string_rendering(self):
+        """Check that Card objects return the correct string"""
+
+        for test_case, test_parameters in self.card_creation_test_cases.items():
+            test_input = test_parameters['input']
+            test_card = alexa.response.Card(
+                *test_input['args'], **test_input['kwargs'])
+
+            with self.subTest(test_case=test_case):
+                self.assertEqual(
+                    str(test_card),
+                    json.dumps(sorted(test_parameters['string'])),
+                    msg='Card object returned an incorrect string representation')
