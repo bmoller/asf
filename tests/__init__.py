@@ -5,6 +5,7 @@ APPLICATION_ID_PREFIX = 'amzn1.ask.skill'
 DEVICE_ID_CHARACTER_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 DEVICE_ID_LENGTH = 156
 DEVICE_ID_PREFIX = 'amzn1.ask.device'
+REQUEST_ID_PREFIX = 'amzn1.echo-api.request'
 SESSION_ID_PREFIX = 'amzn1.echo-api.session'
 USER_ID_CHARACTER_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 USER_ID_LENGTH = 207
@@ -63,6 +64,18 @@ def generate_device_id(
         device_id += random.choice(character_set)
 
     return '.'.join([prefix, device_id])
+
+
+def generate_request_id(prefix: str=REQUEST_ID_PREFIX) -> str:
+    """Generates an Alexa skill request ID, composed of a static prefix joined
+    with a UUID.
+
+    :param prefix: Optional ID prefix
+
+    :return: Generated Alexa skill session ID
+    """
+
+    return '.'.join([prefix, str(uuid.uuid4())])
 
 
 def generate_session_id(prefix: str=SESSION_ID_PREFIX) -> str:
