@@ -147,7 +147,7 @@ class Card:
                 'type': 'Simple',
             }
 
-        if self.title:
+        if hasattr(self, 'title') and self.title:
             output['title'] = self.title
 
-        return json.dumps(output)
+        return json.dumps(sorted(output))
