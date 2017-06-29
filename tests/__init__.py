@@ -45,7 +45,8 @@ def generate_consent_token() -> str:
 
 
 def generate_device_id(
-        prefix: str=DEVICE_ID_PREFIX, character_set=DEVICE_ID_CHARACTER_SET,
+        prefix: str=DEVICE_ID_PREFIX,
+        character_set: str=DEVICE_ID_CHARACTER_SET,
         length: int=DEVICE_ID_LENGTH) -> str:
     """Generates a device ID similar to those for an Amazon Echo as seen in an
     Alexa request.
