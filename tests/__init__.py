@@ -1,3 +1,4 @@
+import datetime
 import random
 import uuid
 
@@ -7,6 +8,7 @@ DEVICE_ID_LENGTH = 156
 DEVICE_ID_PREFIX = 'amzn1.ask.device'
 REQUEST_ID_PREFIX = 'amzn1.echo-api.request'
 SESSION_ID_PREFIX = 'amzn1.echo-api.session'
+TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 USER_ID_CHARACTER_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 USER_ID_LENGTH = 207
 USER_ID_PREFIX = 'amzn1.ask.account'
@@ -88,6 +90,21 @@ def generate_session_id(prefix: str=SESSION_ID_PREFIX) -> str:
     """
 
     return '.'.join([prefix, str(uuid.uuid4())])
+
+
+def generate_timestamp(timestamp: datetime.datetime=None) -> str:
+    """Generates a random timestamp in the format used by Alexa requests. If a
+    specific time is passed, it will be formatted and returned instead.
+
+    :param timestamp: Optional datetime to format and return
+
+    :return: Formatted timestamp as a string
+    """
+
+    if timestamp is None:
+        timestamp = datetime.datetime.now(datetime.timezone.utc)
+
+    return timestamp.strftime(TIMESTAMP_FORMAT)
 
 
 def generate_user_id(
