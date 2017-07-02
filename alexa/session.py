@@ -9,19 +9,8 @@ class Session:
         else:
             self.new = False
         self.session_id = session_data['sessionId']
-
-        self.application = Application(
-            session_data['application']['applicationId'])
-
-        access_token, consent_token = None, None
-        if 'accessToken' in session_data['user']:
-            access_token = session_data['user']['accessToken']
-        if ('permissions' in session_data['user']
-            and 'consentToken' in session_data['user']['permissions']):
-            consent_token = session_data['user']['permissions']['consentToken']
-        self.user = User(
-            session_data['user']['userId'], consent_token=consent_token,
-            access_token=access_token)
+        self.application = Application(session_data['application'])
+        self.user = User(session_data['user'])
 
         if 'attributes' in session_data:
             for attribute, value in session_data['attributes'].items():
@@ -30,36 +19,33 @@ class Session:
 
 class Application:
 
-    def __init__(self, application_id: str):
-        """Creates an application object with the specified ID
+    def __init__(self, application_data: dict):
+        """Creates an application object from the provided JSON object. The
+        application object is useful for confirming that the current request is
+        actually intended and authorized.
 
-        :param application_id:
-            ID of the Alexa skill. This can be used to verify that a received
-            request is indeed for this skill
+        :param application_data:
+            The 'application' object from the 'session' object in the Lambda
+            event
         """
 
-        self.application_id = application_id
+        self.application_id = application_data['applicationId']
 
 
 class User:
 
-    def __init__(
-            self, user_id: str, consent_token: str=None,
-            access_token: str=None):
+    def __init__(self, user_data: dict):
         """Create a new Alexa user with provided information
 
-        :param user_id: User ID as provided in the session and context
-        :param consent_token:
-            Permissions consent token as provided in the session and context
-        :param access_token:
-            The user's access token provided as part of integration with a
-            third-party service
+        :param user_data:
+            The 'user' object from the 'session' object in the Lambda event
         """
 
-        self.user_id = user_id
+        self.user_id = user_data['userId']
 
-        if consent_token:
-            self.consent_token = consent_token
+        if ('permissions' in user_data
+                and 'consentToken' in user_data['permissions']):
+            self.consent_token = user_data['permissions']['consentToken']
 
-        if access_token:
-            self.access_token = access_token
+        if 'accessToken' in user_data:
+            self.access_token = user_data['accessToken']
