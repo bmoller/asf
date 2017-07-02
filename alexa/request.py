@@ -44,6 +44,26 @@ class Intent:
         self.confirmation_status = intent_data['confirmationStatus']
         self.name = intent_data['name']
 
+        self.slots = {}
+        if 'slots' in intent_data:
+            for name, data in intent_data['slots'].items():
+                slot = Slot(data)
+                self.slots[name] = slot
+
+
+class Slot:
+
+    def __init__(self, slot_data: dict):
+        """Creates a new Slot
+
+        :param slot_data:
+            The 'slot' object from an 'intent' object in the Lambda event
+        """
+
+        self.confirmation_status = slot_data['confirmationStatus']
+        self.name = slot_data['name']
+        self.value = slot_data['value']
+
 
 class SessionEndedRequest(Request):
 

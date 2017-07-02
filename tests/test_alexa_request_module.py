@@ -127,9 +127,30 @@ class AlexaIntentTestCase(unittest.TestCase):
         """Set attributes used in multiple places"""
 
         self.intent_creation_test_cases = {
-            'Intent with Name and ConfirmationStatus': {
+            'Simple Intent': {
                 'name': 'my_sweet_intent',
                 'confirmationStatus': 'NONE',
+            },
+            'Intent with Slots': {
+                'name': 'my_sweet_intent',
+                'confirmationStatus': 'NONE',
+                'slots': {
+                    'slot_1': {
+                        'name': 'slot_1',
+                        'value': 'value_1',
+                        'confirmationStatus': '',
+                    },
+                    'slot_2': {
+                        'name': 'slot_2',
+                        'value': 'value_2',
+                        'confirmationStatus': '',
+                    },
+                    'slot_3': {
+                        'name': 'slot_3',
+                        'value': 'value_3',
+                        'confirmationStatus': '',
+                    },
+                },
             },
         }
 
@@ -144,17 +165,67 @@ class AlexaIntentTestCase(unittest.TestCase):
 
         for test_case, test_input in self.intent_creation_test_cases.items():
             test_intent = alexa.request.Intent(test_input)
+            self.check_new_intent(test_intent, test_case, test_input)
+
+    @classmethod
+    def check_new_intent(
+            cls, test_intent: alexa.request.Intent, test_case: str,
+            test_input: dict):
+        """Check that a new Intent has the expected attributes
+
+        :param test_intent: New Intent to check
+        :param test_case: Name of the test case for printing on failure
+        :param test_input: Test input that was provided to the __init__ method
+        """
+
+        with cls.subTest(test_case=test_case):
+            cls.assertEqual(
+                test_intent.name, test_input['name'],
+                msg='New Intent has an incorrect name')
+
+        with cls.subTest(test_case=test_case):
+            cls.assertEqual(
+                test_intent.confirmation_status,
+                test_input['confirmationStatus'],
+                msg='New Intent has an incorrect confirmation_status')
+
+
+class AlexaSlotTestCase(unittest.TestCase):
+
+    def setUp(self):
+        """Set attributes used in tests"""
+
+        self.slot_creation_test_cases = {
+            'Simple Slot': {
+                'name': 'simple_slot',
+                'value': 'simple_value',
+                'confirmationStatus': 'NONE',
+            },
+        }
+
+    def tearDown(self):
+        """Remove attributes created in test setup"""
+
+        for attribute in ['slot_creation_test_cases', ]:
+            delattr(self, attribute)
+
+    def test_slot_creation(self):
+        """Test creation of new Slot objects"""
+
+        for test_case, test_input in self.slot_creation_test_cases.items():
+            test_slot = alexa.request.Slot(test_input)
+
+            for attribute in ['name', 'value', ]:
+                with self.subTest(test_case=test_case):
+                    self.assertEqual(
+                        getattr(test_slot, attribute), test_input[attribute],
+                        msg='New Slot has an incorrect value for \'{attribute}\' attribute'.format(attribute=attribute))
 
             with self.subTest(test_case=test_case):
                 self.assertEqual(
-                    test_intent.name, test_input['name'],
-                    msg='New Intent has an incorrect name')
-
-            with self.subTest(test_case=test_case):
-                self.assertEqual(
-                    test_intent.confirmation_status,
+                    test_slot.confirmation_status,
                     test_input['confirmationStatus'],
-                    msg='New Intent has an incorrect confirmation_status')
+                    msg='New Slot has an incorrect confirmation_status')
 
 
 class AlexaSessionEndedRequestTestCase(unittest.TestCase):
