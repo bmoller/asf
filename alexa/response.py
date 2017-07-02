@@ -1,6 +1,7 @@
 import json
 import urllib.parse
 
+_MAX_CARD_LENGTH = 8000
 PLAIN_TEXT = 'PlainText'
 SSML = 'SSML'
 
@@ -8,15 +9,14 @@ SSML = 'SSML'
 def build_response(
         response_type: str, response_text: str, session_attributes: dict=None,
         should_end_session: bool=True) -> dict:
-    """ Builds a dict structure that can be returned as an Alexa skill response
+    """Builds a dict structure that can be returned as an Alexa skill response
 
     :param response_type: Using the module attributes, specify whether the
                           response is plain text to be read or speech markup
     :param response_text: The actual response for Alexa to speak
-    :param session_attributes: Key/value pairs that will be stored in the
-                               user's session
-    :param should_end_session: Determines if Alexa should listen for a response
-                               or the conversation is over
+    :param session_attributes: Key/value pairs to store in the user's session
+    :param should_end_session:
+        Should Alexa listen for a response, or is the conversation over
 
     :return: An Alexa skill response
     """
@@ -44,6 +44,8 @@ def build_response(
 
 class Card:
 
+    MAX_CARD_LENGTH = _MAX_CARD_LENGTH
+
     def __init__(
             self, text: str, title: str=None, small_image: str=None,
             large_image: str=None):
@@ -63,37 +65,82 @@ class Card:
         :raises: ValueError
         """
 
-        text_is_not_str = not type(text) == str
-        title_is_not_str = (
-            not type(title) == str and title is not None)
+        try:
+            self._check_attribute_types(text, title, small_image, large_image)
+        except TypeError:
+            raise
+        try:
+            self._check_card_length(text, title, small_image, large_image)
+        except ValueError:
+            raise
+
+        self.text = text
+        if title:
+            self.title = title
+
+        try:
+            if small_image:
+                self._check_image_url(small_image)
+                self.small_image = small_image
+            if large_image:
+                self._check_image_url(large_image)
+                self.large_image = large_image
+        except ValueError:
+            raise
+
+    @staticmethod
+    def _check_attribute_types(
+            text: str, title: str, small_image: str, large_image: str):
+        """Verify all Card initialization parameters are of the correct types.
+
+        :param text: Card's text
+        :param title: Card's title, if any
+        :param small_image: Card's small image URL, if any
+        :param large_image: Card's large image URL, if any
+
+        :raises: TypeError
+        """
+
+        text_is_not_str = type(text) != str
+        title_is_not_str = title is not None and type(title) != str
         small_image_is_not_str = (
-            not type(small_image) == str and small_image is not None)
+             small_image is not None and type(small_image) != str)
         large_image_is_not_str = (
-            not type(large_image) == str and large_image is not None)
+            large_image is not None and type(large_image) != str)
+
         if (text_is_not_str or title_is_not_str or small_image_is_not_str
                 or large_image_is_not_str):
             raise TypeError('Cards can only be built from strings')
 
-        self.text = text
+    @classmethod
+    def _check_card_length(
+            cls, text: str, title: str, small_image: str, large_image: str):
+        """Verify total length of all card text is less than the allowed max.
 
+        The Alexa API limits the combined length of all text fields and URL's
+        on a single card, see
+        https://developer.amazon.com/public/solutions/alexa/alexa-skills-kit/docs/alexa-skills-kit-interface-reference#response-format
+
+        :param text: Card's text
+        :param title: Card's title, if any
+        :param small_image: Card's small image URL, if any
+        :param large_image: Card's large image URL, if any
+
+        :raises: ValueError
+        """
+
+        total_length = len(text)
         if title:
-            self.title = title
-
+            total_length += len(title)
         if small_image:
-            try:
-                self._check_image_url(small_image)
-            except ValueError:
-                raise
-            else:
-                self.small_image = small_image
-
+            total_length += len(small_image)
         if large_image:
-            try:
-                self._check_image_url(large_image)
-            except ValueError:
-                raise
-            else:
-                self.large_image = large_image
+            total_length += len(large_image)
+
+        if total_length > cls.MAX_CARD_LENGTH:
+            raise ValueError(
+                'Total length of all card items cannot exceed {max_length} characters.'.format(
+                    max_length=cls.MAX_CARD_LENGTH))
 
     @staticmethod
     def _check_image_url(url: str):
@@ -120,34 +167,31 @@ class Card:
         if not_a_jpeg and not_a_jpg and not_a_png:
             raise ValueError('Only JPEG and PNG image types are supported for cards')
 
-    def __str__(self) -> str:
-        """Return proper JSON-formatted text representation of this card.
+    def get_response_data(self) -> dict:
+        """Return properly-structured object for use in a Response
 
-        :return: JSON output
+        :return: dict representation of this Card instance
         """
 
-        if (
-                hasattr(self, 'small_image') and self.small_image
-                or hasattr(self, 'large_image') and self.large_image):
-
+        if hasattr(self, 'small_image') or hasattr(self, 'large_image'):
             output = {
                 'image': {},
                 'text': self.text,
                 'type': 'Standard',
             }
-            if hasattr(self, 'small_image') and self.small_image:
-                output['image']['smallImageUrl'] = self.small_image
-            if hasattr(self, 'large_image') and self.large_image:
-                output['image']['smallImageUrl'] = self.large_image
-
         else:
-
             output = {
                 'content': self.text,
                 'type': 'Simple',
             }
 
-        if hasattr(self, 'title') and self.title:
+        if hasattr(self, 'title'):
             output['title'] = self.title
+        if hasattr(self, 'small_image'):
+            output['image']['smallImageUrl'] = self.small_image
+        if hasattr(self, 'large_image'):
+            output['image']['smallImageUrl'] = self.large_image
 
-        return json.dumps(sorted(output))
+        return output
+
+    def __set
