@@ -12,7 +12,7 @@ class UserTests:
     }
 
     def setUp(self):
-        # Randomize some inputs, create a User
+        # Randomize some input and create a User
 
         self.test_input['userId'] = generate_user_id()
 
@@ -27,22 +27,19 @@ class UserTests:
     def test_consent_token(self):
         # Check the consent token, if it exists
 
-        if 'permissions' not in self.test_input:
+        if ('permissions' not in self.test_input
+                or 'consentToken' not in self.test_input['permissions']):
             self.assertFalse(
                 hasattr(self.user, 'consent_token'),
-                msg='User object has unexpected attribute \'consent_token\'')
-        elif 'consentToken' not in self.test_input['permissions']:
-            self.assertFalse(
-                hasattr(self.user, 'consent_token'),
-                msg='User object has unexpected attribute \'consent_token\'')
+                msg="User object has unexpected attribute 'consent_token'")
         else:
             self.assertTrue(
                 hasattr(self.user, 'consent_token'),
-                msg='User object is missing expected attribute \'consent_token\'')
+                msg="User object is missing expected attribute 'consent_token'")
             self.assertEqual(
                 self.user.consent_token,
                 self.test_input['permissions']['consentToken'],
-                msg='User attribute \'consent_token\' equals \'{actual}\', expected \'{expected}\''.format(
+                msg="User attribute 'consent_token' equals '{actual}', expected '{expected}'".format(
                     actual=str(self.user.consent_token),
                     expected=self.test_input['permissions']['consentToken']))
 
@@ -52,14 +49,14 @@ class UserTests:
         if 'accessToken' not in self.test_input:
             self.assertFalse(
                 hasattr(self.user, 'access_token'),
-                msg='User object has unexpected attribute \'access_token\'')
+                msg="User object has unexpected attribute 'access_token'")
         else:
             self.assertTrue(
                 hasattr(self.user, 'access_token'),
-                msg='User object is missing expected attribute \'access_token\'')
+                msg="User object is missing expected attribute 'access_token'")
             self.assertEqual(
                 self.user.access_token, self.test_input['accessToken'],
-                msg='User attribute \'access_token\' equals \'{actual}\', expected \'{expected}\''.format(
+                msg="User attribute 'access_token' equals '{actual}', expected '{expected}'".format(
                     actual=str(self.user.access_token),
                     expected=self.test_input['accessToken']))
 
