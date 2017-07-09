@@ -26,8 +26,9 @@ class IntentRequest(Request):
             the entry function
         """
 
-        Request.__init__(self, request_data)
+        super().__init__(request_data)
 
+        self.intent = Intent(request_data['intent'])
         if 'dialogState' in request_data:
             self.dialog_state = request_data['dialogState']
 
@@ -75,7 +76,7 @@ class SessionEndedRequest(Request):
             the entry function
         """
 
-        Request.__init__(self, request_data)
+        super().__init__(request_data)
 
         self.reason = request_data['reason']
 
