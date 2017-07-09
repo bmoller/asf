@@ -3,6 +3,11 @@ import random
 import uuid
 
 APPLICATION_ID_PREFIX = 'amzn1.ask.skill'
+CONFIRMATION_STATUSES = (
+    'CONFIRMED',
+    'DENIED',
+    'NONE',
+)
 DEVICE_ID_CHARACTER_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 DEVICE_ID_LENGTH = 156
 DEVICE_ID_PREFIX = 'amzn1.ask.device'
@@ -51,6 +56,14 @@ def generate_consent_token() -> str:
 
     return 'Atza|MQEWY...6fnLok'
 
+
+def generate_confirmation_status() -> str:
+    """Return a valid value for the 'confirmationStatus' value of an Alexa intent.
+
+    :return: A randomly-chosen confirmation status.
+    """
+
+    return random.choice(CONFIRMATION_STATUSES)
 
 def generate_dialog_state() -> str:
     """Return a valid value for the 'dialogState' value of an Alexa request.
