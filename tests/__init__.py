@@ -17,6 +17,11 @@ DIALOG_STATES = (
     'STARTED',
 )
 REQUEST_ID_PREFIX = 'amzn1.echo-api.request'
+SESSION_ENDED_ERROR_TYPES = (
+    'DEVICE_COMMUNICATION_ERROR',
+    'INTERNAL_ERROR',
+    'INVALID_RESPONSE',
+)
 SESSION_ID_PREFIX = 'amzn1.echo-api.session'
 TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
 USER_ID_CHARACTER_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
@@ -105,6 +110,15 @@ def generate_request_id(prefix: str=REQUEST_ID_PREFIX) -> str:
     """
 
     return '.'.join([prefix, str(uuid.uuid4())])
+
+
+def generate_session_ended_error_type() -> str:
+    """ Generate a valid error type for a SessionEndedRequest.
+
+    :return: A randomly-selected error type.
+    """
+
+    return random.choice(SESSION_ENDED_ERROR_TYPES)
 
 
 def generate_session_id(prefix: str=SESSION_ID_PREFIX) -> str:
