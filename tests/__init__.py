@@ -6,6 +6,11 @@ APPLICATION_ID_PREFIX = 'amzn1.ask.skill'
 DEVICE_ID_CHARACTER_SET = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890'
 DEVICE_ID_LENGTH = 156
 DEVICE_ID_PREFIX = 'amzn1.ask.device'
+DIALOG_STATES = (
+    'COMPLETED',
+    'IN_PROGRESS',
+    'STARTED',
+)
 REQUEST_ID_PREFIX = 'amzn1.echo-api.request'
 SESSION_ID_PREFIX = 'amzn1.echo-api.session'
 TIMESTAMP_FORMAT = '%Y-%m-%dT%H:%M:%SZ'
@@ -45,6 +50,15 @@ def generate_consent_token() -> str:
     """
 
     return 'Atza|MQEWY...6fnLok'
+
+
+def generate_dialog_state() -> str:
+    """Return a valid value for the 'dialogState' value of an Alexa request.
+
+    :return: A randomly-chosen dialog state.
+    """
+
+    return random.choice(DIALOG_STATES)
 
 
 def generate_device_id(
