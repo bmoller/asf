@@ -167,7 +167,7 @@ class Card:
         if not_a_jpeg and not_a_jpg and not_a_png:
             raise ValueError('Only JPEG and PNG image types are supported for cards')
 
-    def get_response_data(self) -> dict:
+    def render(self) -> dict:
         """Return properly-structured object for use in a Response
 
         :return: dict representation of this Card instance
@@ -193,5 +193,3 @@ class Card:
             output['image']['smallImageUrl'] = self.large_image
 
         return output
-
-    def __set
