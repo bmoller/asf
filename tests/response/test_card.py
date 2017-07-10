@@ -34,16 +34,9 @@ class CardTestsMixin:
     def test_render_method(self):
         # Check that dict output matches the expected value
 
-        msg = [
-            'Card rendered the output: {output}'.format(
-                output=pprint.pformat(sorted(self.card.render()))),
-            'Expected output: {expected}'.format(
-                expected=pprint.pformat(sorted(self.output))),
-        ]
-
         self.assertEqual(
             sorted(self.card.render()), sorted(self.output),
-            msg='\n'.join(msg)
+            msg='Rendered Card output is incorrect'
         )
 
 
@@ -84,4 +77,61 @@ class SimpleCardWithTitle(CardTestsMixin, unittest.TestCase):
         'content': CardTestsMixin.CARD_TEXT,
         'title': CardTestsMixin.CARD_TITLE,
         'type': 'Simple',
+    }
+
+
+class StandardCardWithImages(CardTestsMixin, unittest.TestCase):
+
+    args = [
+        CardTestsMixin.CARD_TEXT,
+    ]
+
+    kwargs = {
+        'small_image': CardTestsMixin.IMAGE_URL,
+        'large_image': CardTestsMixin.IMAGE_URL,
+    }
+
+    attributes = [
+        ('text', CardTestsMixin.CARD_TEXT),
+        ('small_image', CardTestsMixin.IMAGE_URL),
+        ('large_image', CardTestsMixin.IMAGE_URL),
+    ]
+
+    output = {
+        'text': CardTestsMixin.CARD_TEXT,
+        'image': {
+            'smallImageUrl': CardTestsMixin.IMAGE_URL,
+            'largeImageUrl': CardTestsMixin.IMAGE_URL,
+        },
+        'type': 'Standard',
+    }
+
+
+class StandardCardWithEverything(CardTestsMixin, unittest.TestCase):
+
+    args = [
+        CardTestsMixin.CARD_TEXT,
+    ]
+
+    kwargs = {
+        'title': CardTestsMixin.CARD_TITLE,
+        'small_image': CardTestsMixin.IMAGE_URL,
+        'large_image': CardTestsMixin.IMAGE_URL,
+    }
+
+    attributes = [
+        ('text', CardTestsMixin.CARD_TEXT),
+        ('title', CardTestsMixin.CARD_TITLE),
+        ('small_image', CardTestsMixin.IMAGE_URL),
+        ('large_image', CardTestsMixin.IMAGE_URL),
+    ]
+
+    output = {
+        'text': CardTestsMixin.CARD_TEXT,
+        'image': {
+            'smallImageUrl': CardTestsMixin.IMAGE_URL,
+            'largeImageUrl': CardTestsMixin.IMAGE_URL,
+        },
+        'title': CardTestsMixin.CARD_TITLE,
+        'type': 'Standard',
     }
